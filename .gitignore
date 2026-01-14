@@ -1,0 +1,11 @@
+# Ignore everything *
+
+
+# Allow these
+!.gitignore
+!README.md
+!*.pdf
+!*.png
+!*.jpg
+!*.jpeg
+!*.svg
