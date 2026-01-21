@@ -1,0 +1,192 @@
+Tehtävä 5. Employees, osa 1
+
+a) SELECT * FROM departments;
+b) SELECT DISTINCT title FROM titles;
+c) SELECT MIN(salary) AS lowest, MAX(salary) AS highest FROM salaries;
+d) SELECT AVG(salary) FROM salaries;
+e) SELECT * FROM employees WHERE last_name = 'Facello'; 
+f) SELECT COUNT(*) AS born_in_1950s FROM employees WHERE birth_date >= '1950-01-01' AND birth_date <= '1959-12-31';
+g) SELECT gender, COUNT(*) AS total FROM employees GROUP BY gender;
+
+Tehtävä 6. Pet ja owner
+
+1.
+create TABLE owner
+    -> (
+    -> first_name varchar(255),
+    -> last_name varchar(255),
+    -> address varchar(255),
+    -> ownerID int PRIMARY KEY AUTO_INCREMENT
+    -> ) ;
+
+2.
+ALTER TABLE pet DROP COLUMN owner;
+ALTER TABLE pet ADD COLUMN petID INT PRIMARY KEY AUTO_INCREMENT;
+ALTER TABLE pet ADD COLUMN ownerID INT;
+ALTER TABLE pet ADD CONSTRAINT FOREIGN KEY(ownerID) REFERENCES owner(ownerID);
+
+3.
+INSERT INTO owner VALUES ('Diane', 'Keaton', 'Address3', NULL);
+
+//toista muille / repeat for the others
+
+4.
+UPDATE pet SET ownerID=1 WHERE name='Fluffy';
+
+//toista muille / repeat for the others
+//Useampi samaan aikaan / multiple at once
+
+UPDATE pet SET ownerID=3 WHERE name='Chirpy' OR name='Whistler';
+
+5.
+//Testataan toiminnallisuutta ja lisätään uusi omistaja sekä lemmikki / testing functionality
+
+SELECT name, species FROM pet JOIN owner ON pet.ownerID = owner.ownerID WHERE first_name='Harold';
+INSERT INTO owner VALUES ('Charlie', 'Chaplin', 'Someaddress 5', NULL);
+INSERT INTO pet VALUES ('Puffball', 'dog', 'm','2014-09-04', NULL,NULL,NULL);
+
+6.
+//Testing the JOIN commands
+mysql> SELECT * FROM owner JOIN pet on owner.ownerID = pet.ownerID;
++------------+-----------+---------------+---------+----------+---------+------+------------+------------+-------+---------+
+| first_name | last_name | address       | ownerID | name     | species | sex  | birth      | death      | petID | ownerID |
++------------+-----------+---------------+---------+----------+---------+------+------------+------------+-------+---------+
+| Harold     | Lloyd     | Someaddress 1 |       1 | Fluffy   | cat     | f    | 1993-02-04 | NULL       |     1 |       1 |
+| Harold     | Lloyd     | Someaddress 1 |       1 | Buffy    | dog     | f    | 1989-05-13 | NULL       |     3 |       1 |
+| Gwen       | Stefani   | Someaddress 2 |       2 | Bowser   | dog     | m    | 1998-08-31 | 1995-07-29 |     5 |       2 |
+| Benny      | Hill      | Someaddress 3 |       3 | Claws    | cat     | m    | 1994-03-17 | NULL       |     2 |       3 |
+| Benny      | Hill      | Someaddress 3 |       3 | Chirpy   | bird    | f    | 1998-09-11 | 2000-09-15 |     6 |       3 |
+| Benny      | Hill      | Someaddress 3 |       3 | Whistler | bird    | NULL | 1997-12-09 | NULL       |     7 |       3 |
+| Diane      | Keaton    | Someaddress 4 |       4 | Fang     | dog     | m    | 1990-08-27 | NULL       |     4 |       4 |
+| Diane      | Keaton    | Someaddress 4 |       4 | Slim     | snake   | m    | 1996-04-29 | NULL       |     8 |       4 |
++------------+-----------+---------------+---------+----------+---------+------+------------+------------+-------+---------+
+8 rows in set (0.00 sec)
+
+mysql> SELECT first_name,name FROM pet LEFT JOIN owner on pet.ownerID = owner.ownerID;
++------------+----------+
+| first_name | name     |
++------------+----------+
+| Harold     | Fluffy   |
+| Benny      | Claws    |
+| Harold     | Buffy    |
+| Diane      | Fang     |
+| Gwen       | Bowser   |
+| Benny      | Chirpy   |
+| Benny      | Whistler |
+| Diane      | Slim     |
+| NULL       | Puffball |
++------------+----------+
+9 rows in set (0.00 sec)
+
+mysql> SELECT first_name,name FROM pet RIGHT JOIN owner on pet.ownerID = owner.ownerID;
++------------+----------+
+| first_name | name     |
++------------+----------+
+| Harold     | Fluffy   |
+| Harold     | Buffy    |
+| Gwen       | Bowser   |
+| Benny      | Claws    |
+| Benny      | Chirpy   |
+| Benny      | Whistler |
+| Diane      | Fang     |
+| Diane      | Slim     |
+| Charlie    | NULL     |
++------------+----------+
+9 rows in set (0.00 sec)
+
+
+//Taulujen rakenteet:
+
+mysql> desc pet;
++---------+-------------+------+-----+---------+----------------+
+| Field   | Type        | Null | Key | Default | Extra          |
++---------+-------------+------+-----+---------+----------------+
+| name    | varchar(20) | YES  |     | NULL    |                |
+| species | varchar(20) | YES  |     | NULL    |                |
+| sex     | char(1)     | YES  |     | NULL    |                |
+| birth   | date        | YES  |     | NULL    |                |
+| death   | date        | YES  |     | NULL    |                |
+| petID   | int         | NO   | PRI | NULL    | auto_increment |
+| ownerID | int         | YES  | MUL | NULL    |                |
++---------+-------------+------+-----+---------+----------------+
+7 rows in set (0.00 sec)
+
+mysql> desc owner;
++------------+--------------+------+-----+---------+----------------+
+| Field      | Type         | Null | Key | Default | Extra          |
++------------+--------------+------+-----+---------+----------------+
+| first_name | varchar(255) | YES  |     | NULL    |                |
+| last_name  | varchar(255) | YES  |     | NULL    |                |
+| address    | varchar(255) | YES  |     | NULL    |                |
+| ownerID    | int          | NO   | PRI | NULL    | auto_increment |
++------------+--------------+------+-----+---------+----------------+
+4 rows in set (0.00 sec)
+
+
+
+Tehtävä 7: Employees osa 2:
+
+a) SELECT emp_no, first_name, last_name FROM employees ORDER BY last_name ASC LIMIT 10;
+b) SELECT emp_no, first_name, last_name FROM employees ORDER BY last_name ASC, first_name ASC LIMIT 10;
+c) SELECT emp_no, first_name, last_name, hire_date FROM employees ORDER BY hire_date DESC LIMIT 5;
+d) SELECT employees.first_name, employees.last_name, salaries.salary FROM employees JOIN salaries ON employees.emp_no=salaries.emp_no ORDER BY salary DESC LIMIT 1;
+e) SELECT employees.first_name, employees.last_name, salaries.salary FROM employees JOIN salaries ON employees.emp_no=salaries.emp_no ORDER BY salary ASC LIMIT 1;
+f) SELECT employees.first_name, employees.last_name, salaries.salary FROM employees JOIN salaries on employees.emp_no=salaries.emp_no WHERE salary>150000;
+g) SELECT departments.dept_name, COUNT(*) AS num_of_employees FROM employees JOIN dept_emp de ON employees.emp_no = de.emp_no JOIN departments departments ON de.dept_no = departments.dept_no WHERE departments.dept_name IN ('Sales', 'Marketing') GROUP BY departments.dept_name;
++-----------+------------------+
+| dept_name | num_of_employees |
++-----------+------------------+
+| Marketing |            20211 |
+| Sales     |            52245 |
++-----------+------------------+
+2 rows in set (1.27 sec)
+
+h) SELECT employees.first_name, employees.last_name, departments.dept_name FROM employees JOIN dept_manager dm ON employees.emp_no = dm.emp_no JOIN departments departments ON dm.dept_no = departments.dept_no;
+
+// Going to use some shorter aliases from now on
+
+i) SELECT d.dept_name, AVG(s.salary) AS average_salary FROM employees e JOIN salaries s ON e.emp_no=s.emp_no JOIN dept_emp de ON e.emp_no=de.emp_no JOIN departments d ON de.dept_no=d.dept_no WHERE d.dept_name IN ('Sales','Marketing') GROUP BY d.dept_name;
+
+
+Tehtävä 8: Sakila
+
+//Vaihdetaan Sakilaan
+
+mysql> use sakila
+Database changed
+mysql> show tables;
++----------------------------+
+| Tables_in_sakila           |
++----------------------------+
+| actor                      |
+| actor_info                 |
+| address                    |
+| category                   |
+| city                       |
+| country                    |
+| customer                   |
+| customer_list              |
+| film                       |
+| film_actor                 |
+| film_category              |
+| film_list                  |
+| film_text                  |
+| inventory                  |
+| language                   |
+| nicer_but_slower_film_list |
+| payment                    |
+| rental                     |
+| sales_by_film_category     |
+| sales_by_store             |
+| staff                      |
+| staff_list                 |
+| store                      |
++----------------------------+
+23 rows in set (0.04 sec)
+
+a) SELECT name FROM language ORDER BY name ASC;
+b) SELECT film.title FROM actor JOIN film_actor fa ON actor.actor_id = fa.actor_id JOIN film ON fa.film_id = film.film_id WHERE actor.last_name = 'Temple';
+c) SELECT actor.first_name, actor.last_name FROM actor JOIN film_actor fa ON actor.actor_id = fa.actor_id JOIN film ON fa.film_id = film.film_id WHERE film.title = 'Ghost Groundhog';
+d) SELECT COUNT(*) AS horror_movies FROM film_category fc JOIN category ON fc.category_id = category.category_id WHERE category.name = 'Horror';
+e) SELECT film.title FROM film_category fc JOIN category ON fc.category_id = category.category_id JOIN film ON fc.film_id = film.film_id WHERE category.name = 'Horror';
+
