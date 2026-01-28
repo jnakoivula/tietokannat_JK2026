@@ -1,0 +1,138 @@
+//Tehtävä 9
+//Tietueiden luominen tauluun:
+
+mysql> INSERT INTO opintojakso (Koodi, Laajuus, Nimi) VALUES ('T20041', 3, 'Tietokannat'),('T20042', 3, 'Liike-elaman tapatietous'),('T20043', 3, 'Fysiikka 3'),('T20044', 6, 'Elektroniikan perusteet'), ('T20045', 5, 'Kellarihumppa'), ('T20046', 3, 'Matematiikka 2'), ('T20047', 3, 'Ruotsin Kieli'), ('T20048', 3, 'VHDL-kieli');
+Query OK, 8 rows affected (0.01 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+
+//Tietueet 
+
+mysql> select * FROM opintojakso;
++---------------+--------+---------+--------------------------+
+| idOpintojakso | Koodi  | Laajuus | Nimi                     |
++---------------+--------+---------+--------------------------+
+|             1 | T20041 |       3 | Tietokannat              |
+|             2 | T20042 |       3 | Liike-elaman tapatietous |
+|             3 | T20043 |       3 | Fysiikka 3               |
+|             4 | T20044 |       6 | Elektroniikan perusteet  |
+|             5 | T20045 |       5 | Kellarihumppa            |
+|             6 | T20046 |       3 | Matematiikka 2           |
+|             7 | T20047 |       3 | Ruotsin Kieli            |
+|             8 | T20048 |       3 | VHDL-kieli               |
++---------------+--------+---------+--------------------------+
+8 rows in set (0.00 sec)
+
+//Sama homma tehty muille tauluille:
+
+
+INSERT INTO Opiskelija (Etunimi, Sukunimi, Osoite, Luokkatunnus) VALUES ('Aku', 'Ankka', 'Ankkalinna 313', 'TTE3SNH'),('Roope', 'Ankka', 'Ankkalinna 314', 'TTE3SNH'),('Iines', 'Ankka', 'Ankkalinna 315', 'TTE4SNL'),('Mikki', 'Hiiri', 'Ankkalinna 316', 'TTE2SNO'),('Hessu', 'Hopo', 'Ankkalinna 317', 'TTE2SNO');
+
+mysql> select * FROM opiskelija;
++--------------+---------+----------+----------------+--------------+
+| idOpiskelija | Etunimi | Sukunimi | Osoite         | Luokkatunnus |
++--------------+---------+----------+----------------+--------------+
+|            1 | Aku     | Ankka    | Ankkalinna 313 | TTE3SNH      |
+|            2 | Roope   | Ankka    | Ankkalinna 314 | TTE3SNH      |
+|            3 | Iines   | Ankka    | Ankkalinna 315 | TTE4SNL      |
+|            4 | Mikki   | Hiiri    | Ankkalinna 316 | TTE2SNO      |
+|            5 | Hessu   | Hopo     | Ankkalinna 317 | TTE2SNO      |
++--------------+---------+----------+----------------+--------------+
+5 rows in set (0.00 sec)
+
+mysql>
+
+//Arvioinnit + sama muille tehty
+
+mysql> INSERT INTO arviointi (Paivamaara, Arvosana, idOpiskelija, idOpintojakso) VALUES (CURDATE(), 1, 1, 1);
+Query OK, 1 row affected (0.04 sec)
+
+mysql> SELECT * FROM arviointi;
++-------------+------------+----------+---------------+--------------+
+| idArviointi | Paivamaara | Arvosana | idOpintojakso | idOpiskelija |
++-------------+------------+----------+---------------+--------------+
+|           1 | 2026-01-28 |        1 |             1 |            1 |
++-------------+------------+----------+---------------+--------------+
+1 row in set (0.00 sec)
+
+mysql>
+
+//Lopputulos
+
+mysql> SELECT Etunimi,Sukunimi,Arvosana,Paivamaara,Nimi FROM arviointi JOIN opiskelija ON Opiskelija.idOpiskelija = Arviointi.idOpiskelija JOIN opintojakso ON Opintojakso.idOpintojakso = Arviointi.idOpintojakso;
++---------+----------+----------+------------+---------------+
+| Etunimi | Sukunimi | Arvosana | Paivamaara | Nimi          |
++---------+----------+----------+------------+---------------+
+| Aku     | Ankka    |        1 | 2026-01-28 | Tietokannat   |
+| Aku     | Ankka    |        1 | 2026-01-28 | Fysiikka 3    |
+| Aku     | Ankka    |        0 | 2026-01-28 | Ruotsin Kieli |
+| Roope   | Ankka    |        4 | 2026-01-28 | Tietokannat   |
+| Roope   | Ankka    |        2 | 2026-01-28 | Fysiikka 3    |
+| Iines   | Ankka    |        4 | 2026-01-28 | Tietokannat   |
+| Iines   | Ankka    |        3 | 2026-01-28 | Fysiikka 3    |
+| Mikki   | Hiiri    |        5 | 2026-01-28 | Tietokannat   |
+| Mikki   | Hiiri    |        4 | 2026-01-28 | Fysiikka 3    |
+| Hessu   | Hopo     |        5 | 2026-01-28 | Fysiikka 3    |
+| Hessu   | Hopo     |        1 | 2026-01-28 | Tietokannat   |
++---------+----------+----------+------------+---------------+
+11 rows in set (0.00 sec)
+
+mysql>
+
+//Tehtävä 10
+
+1.
+mysql> SELECT DISTINCT Etunimi, Sukunimi, Arvosana FROM arviointi JOIN opiskelija ON opiskelija.idOpiskelija = arviointi.idOpiskelija WHERE arvosana = 0;
++---------+----------+----------+
+| Etunimi | Sukunimi | Arvosana |
++---------+----------+----------+
+| Aku     | Ankka    |        0 |
++---------+----------+----------+
+1 row in set (0.00 sec)
+
+2.
+mysql> SELECT Etunimi, Sukunimi, Arvosana, Nimi FROM arviointi JOIN opiskelija ON opiskelija.idOpiskelija = arviointi.idOpiskelija JOIN opintojakso ON opintojakso.idOpintojakso = arviointi.idOpintojakso WHERE Nimi = 'Fysiikka 3' AND Arvosana >= 1;
++---------+----------+----------+------------+
+| Etunimi | Sukunimi | Arvosana | Nimi       |
++---------+----------+----------+------------+
+| Aku     | Ankka    |        1 | Fysiikka 3 |
+| Roope   | Ankka    |        2 | Fysiikka 3 |
+| Iines   | Ankka    |        3 | Fysiikka 3 |
+| Mikki   | Hiiri    |        4 | Fysiikka 3 |
+| Hessu   | Hopo     |        5 | Fysiikka 3 |
++---------+----------+----------+------------+
+5 rows in set (0.00 sec)
+
+3.
+mysql> SELECT DISTINCT Nimi, Etunimi, Sukunimi FROM arviointi JOIN opiskelija ON opiskelija.idOpiskelija = arviointi.idOpiskelija JOIN opintojakso ON opintojakso.idOpintojakso = arviointi.idOpintojakso WHERE Etunimi = 'Hessu' AND Sukunimi = 'Hopo';
++-------------+---------+----------+
+| Nimi        | Etunimi | Sukunimi |
++-------------+---------+----------+
+| Fysiikka 3  | Hessu   | Hopo     |
+| Tietokannat | Hessu   | Hopo     |
++-------------+---------+----------+
+2 rows in set (0.00 sec)
+
+4.
+mysql> SELECT Etunimi, Sukunimi, AVG(Arvosana) AS Keskiarvo FROM arviointi JOIN opiskelija ON opiskelija.idOpiskelija = arviointi.idOpiskelija WHERE Etunimi = 'Aku' AND Sukunimi = 'Ankka';
++---------+----------+-----------+
+| Etunimi | Sukunimi | Keskiarvo |
++---------+----------+-----------+
+| Aku     | Ankka    |    0.6667 |
++---------+----------+-----------+
+1 row in set (0.00 sec)
+
+5.
+mysql> SELECT Nimi FROM opintojakso LEFT JOIN arviointi ON arviointi.idOpintojakso = opintojakso.idOpintojakso WHERE arviointi.idOpintojakso IS NULL;
++--------------------------+
+| Nimi                     |
++--------------------------+
+| Liike-elaman tapatietous |
+| Elektroniikan perusteet  |
+| Kellarihumppa            |
+| Matematiikka 2           |
+| VHDL-kieli               |
++--------------------------+
+5 rows in set (0.00 sec)
+
+
+
