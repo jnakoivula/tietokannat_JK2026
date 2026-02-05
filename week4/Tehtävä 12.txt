@@ -1,0 +1,94 @@
+//Tehtävä 12.
+
+
+//Taulut:
+
+mysql> show tables;
++--------------------+
+| Tables_in_kirjasto |
++--------------------+
+| asiakas            |
+| hylly              |
+| kirja              |
+| lainaus            |
+| tekija             |
+| teos               |
+| teostekija         |
++--------------------+
+7 rows in set (0.00 sec)
+
+//Esimerkki tauluissa olevasta datasta:
+
+mysql> SELECT * FROM asiakas;
++-----------+---------+-------------+----------------+------------+------------------+
+| idAsiakas | Etunimi | Sukunimi    | Sahkoposti     | Puhelin    | Osoite           |
++-----------+---------+-------------+----------------+------------+------------------+
+|         1 | Matti   | Meikalainen | matti@posti.fi | 0401234567 | Kirkkokatu 1 B 2 |
+|         2 | Essi    | Esimerkki   | essi@posti.fi  | 0409876543 | Kauppatie 2 A 1  |
++-----------+---------+-------------+----------------+------------+------------------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT * FROM teos;
++--------+-----------------------+----------+-----------+----------+
+| idTeos | Otsikko               | Kieli    | Julkaistu | Genre    |
++--------+-----------------------+----------+-----------+----------+
+|      1 | The Lord of the Rings | Englanti |      1954 | Fantasia |
+|      2 | The Hobbit            | Englanti |      1937 | Fantasia |
+|      3 | Dune                  | Englanti |      1965 | SciFi    |
+|      4 | The Wheel of Time     | Englanti |      1990 | Fantasia |
++--------+-----------------------+----------+-----------+----------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT * FROM tekija;
++--------------+---------+-----------+---------+----------+
+| idKirjailija | Etunimi | Sukunimi  | Kotimaa | Syntynyt |
++--------------+---------+-----------+---------+----------+
+|            1 | J.R.R.  | Tolkien   | UK      |     1892 |
+|            2 | Frank   | Herbert   | USA     |     1920 |
+|            3 | Robert  | Jordan    | USA     |     1948 |
+|            4 | Brandon | Sanderson | USA     |     1975 |
++--------------+---------+-----------+---------+----------+
+4 rows in set (0.00 sec)
+
+
+//Kaksi samaa kirjaa sekä kirja jolla useampi kuin 1 tekijä: 
+
+mysql> SELECT teos.Otsikko, COUNT(*) tekijat FROM teostekija ttekija JOIN teos teos ON teos.idTeos = ttekija.idTeos GROUP BY teos.Otsikko HAVING COUNT(*) > 1;
++-------------------+---------+
+| Otsikko           | tekijat |
++-------------------+---------+
+| The Wheel of Time |       2 |
++-------------------+---------+
+1 row in set (0.04 sec)
+
+mysql> SELECT teos.Otsikko, COUNT(*) kirjat FROM kirja kirja JOIN teos teos ON teos.idTeos = kirja.idTeos GROUP BY teos.Otsikko;
++-----------------------+--------+
+| Otsikko               | kirjat |
++-----------------------+--------+
+| The Lord of the Rings |      2 |
+| The Hobbit            |      1 |
+| Dune                  |      1 |
+| The Wheel of Time     |      1 |
++-----------------------+--------+
+4 rows in set (0.00 sec)
+
+//Lainaustapahtuma:
+
+mysql> SELECT asiakas.Etunimi, asiakas.Sukunimi, teos.Otsikko, kirja.Viivakoodi, lainaus.Lainauspaiva, lainaus.Palautuspaiva FROM lainaus JOIN asiakas ON asiakas.idAsiakas = lainaus.idAsiakas JOIN kirja ON kirja.idKirja = lainaus.idKirja JOIN teos ON teos.idTeos = kirja.idTeos WHERE lainaus.Palautettu IS NULL;
++---------+-------------+-----------------------+------------+--------------+---------------+
+| Etunimi | Sukunimi    | Otsikko               | Viivakoodi | Lainauspaiva | Palautuspaiva |
++---------+-------------+-----------------------+------------+--------------+---------------+
+| Matti   | Meikalainen | The Lord of the Rings | LOTR-0001  | 2026-02-05   | 2026-03-07    |
++---------+-------------+-----------------------+------------+--------------+---------------+
+1 row in set (0.00 sec)
+
+mysql>
+
+mysql> SELECT idKirja, Viivakoodi, Tila, idHylly FROM kirja WHERE tila = 'LAINASSA';
++---------+------------+----------+---------+
+| idKirja | Viivakoodi | Tila     | idHylly |
++---------+------------+----------+---------+
+|       1 | LOTR-0001  | LAINASSA |    NULL |
++---------+------------+----------+---------+
+1 row in set (0.00 sec)
+
