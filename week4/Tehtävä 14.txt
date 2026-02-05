@@ -1,0 +1,191 @@
+//Tehtävä 14c)
+
+CREATE PROCEDURE Myohastyneet ()
+BEGIN
+
+SELECT asiakas.Etunimi, asiakas.Sukunimi, teos.Otsikko, kirja.Viivakoodi, lainaus.Lainauspaiva, lainaus.Palautuspaiva
+FROM lainaus JOIN asiakas ON asiakas.idAsiakas = lainaus.idAsiakas JOIN kirja ON kirja.idKirja = lainaus.idKirja
+JOIN teos ON teos.idTeos = kirja.idTeos WHERE lainaus.Palautettu IS NULL AND lainaus.Palautuspaiva < CURDATE();
+
+END
+
+//Kutsutaan aliohjelmaa:
+
+mysql> CALL Myohastyneet;
++---------+-----------+------------+-------------+--------------+---------------+
+| Etunimi | Sukunimi  | Otsikko    | Viivakoodi  | Lainauspaiva | Palautuspaiva |
++---------+-----------+------------+-------------+--------------+---------------+
+| Essi    | Esimerkki | The Hobbit | HOBBIT-0001 | 2025-12-27   | 2026-01-26    |
++---------+-----------+------------+-------------+--------------+---------------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.01 sec)
+
+mysql>
+
+//Tehtävä 14d) 
+
+
+CREATE PROCEDURE LisaaSuoritus (
+IN En VARCHAR(45),
+IN Sn VARCHAR(45),
+IN KK VARCHAR(45),
+IN Arvos INT
+)
+
+Aliohjelma:BEGIN
+
+DECLARE OpiskID INT DEFAULT 0;
+DECLARE OpjaksoID INT DEFAULT 0;
+
+SELECT idOpiskelija INTO OpiskID FROM opiskelija WHERE Etunimi = En AND Sukunimi = Sn;
+
+IF OpiskID = 0 THEN
+	SELECT 'Opiskelijaa ei ole';
+    LEAVE Aliohjelma;
+END IF;
+
+SELECT idOpintojakso INTO OpjaksoID FROM opintojakso WHERE Koodi = KK;
+
+IF OpjaksoID = 0 THEN
+	SELECT 'Opintojaksoa ei ole';
+    LEAVE Aliohjelma;
+END IF;
+
+IF Arvos < 0 OR Arvos > 5 THEN
+	SELECT 'Arvosanan tulee olla 0-5';
+    LEAVE Aliohjelma;
+END IF;
+
+INSERT INTO arviointi VALUES (NULL, CURDATE(), Arvos, OpjaksoID, OpiskID);
+
+END
+
+//Testataan
+
+mysql> CALL LisaaSuoritus('Iines','Ankka','T20041',3);
+Query OK, 1 row affected (0.12 sec)
+
+mysql> SELECT etunimi,sukunimi,arvosana,paivamaara,nimi FROM arviointi JOIN opiskelija ON opiskelija.idOpiskelija = arviointi.idOpiskelija JOIN opintojakso ON opintojakso.idOpintojakso = arviointi.idOpintojakso;
++---------+----------+----------+------------+---------------+
+| etunimi | sukunimi | arvosana | paivamaara | nimi          |
++---------+----------+----------+------------+---------------+
+| Aku     | Ankka    |        1 | 2026-01-28 | Tietokannat   |
+| Aku     | Ankka    |        1 | 2026-01-28 | Fysiikka 3    |
+| Aku     | Ankka    |        0 | 2026-01-28 | Ruotsin Kieli |
+| Roope   | Ankka    |        4 | 2026-01-28 | Tietokannat   |
+| Roope   | Ankka    |        2 | 2026-01-28 | Fysiikka 3    |
+| Iines   | Ankka    |        4 | 2026-01-28 | Tietokannat   |
+| Iines   | Ankka    |        3 | 2026-01-28 | Fysiikka 3    |
+| Iines   | Ankka    |        3 | 2026-02-05 | Tietokannat   | //Täältä löytyy
+| Mikki   | Hiiri    |        5 | 2026-01-28 | Tietokannat   |
+| Mikki   | Hiiri    |        4 | 2026-01-28 | Fysiikka 3    |
+| Hessu   | Hopo     |        5 | 2026-01-28 | Fysiikka 3    |
+| Hessu   | Hopo     |        1 | 2026-01-28 | Tietokannat   |
++---------+----------+----------+------------+---------------+
+12 rows in set (0.00 sec)
+
+mysql>
+
+//Testataan väärällä arvosanalla:
+
+mysql> CALL LisaaSuoritus('Iines','Ankka','T20041',9);
++--------------------------+
+| Arvosanan tulee olla 0-5 |
++--------------------------+
+| Arvosanan tulee olla 0-5 |
++--------------------------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.01 sec)
+
+
+
+//Tehtävä 14e)
+
+CREATE PROCEDURE PoistaSuoritus (
+IN En VARCHAR(45),
+IN Sn VARCHAR(45),
+IN KK VARCHAR(45)
+)
+
+Aliohjelma:BEGIN
+
+DECLARE OpiskID INT DEFAULT 0;
+DECLARE OpjaksoID INT DEFAULT 0;
+DECLARE SuoritusID INT DEFAULT 0;
+
+SELECT idOpiskelija INTO OpiskID FROM opiskelija WHERE Etunimi = En AND Sukunimi = Sn;
+
+IF OpiskID = 0 THEN
+	SELECT 'Opiskelijaa ei loydy';
+    LEAVE Alihjelma;
+END IF;
+
+SELECT idOpintojakso INTO OpjaksoID FROM opintojakso WHERE Koodi = KK;
+
+IF OpjaksoID = 0 THEN
+	SELECT 'Opintojaksoa ei loydy';
+    LEAVE Aliohjelma;
+END IF;
+
+SELECT idArviointi INTO SuoritusID FROM arviointi WHERE idOpiskelija = OpiskID AND idOpintojakso = OpjaksoID;
+
+IF SuoritusID = 0 THEN
+	SELECT 'Suoritusta ei loydy';
+    LEAVE Aliohjelma;
+END IF;
+
+DELETE FROM arviointi
+WHERE idArviointi = SuoritusID;
+
+END
+
+//Testaus
+
+mysql> CALL PoistaSuoritus('Iines','Ankka','T20041');
+Query OK, 1 row affected (0.04 sec)
+
+mysql> SELECT etunimi,sukunimi,nimi,arvosana FROM arviointi JOIN opiskelija ON opiskelija.idOpiskelija = arviointi.idOpiskelija JOIN opintojakso ON opintojakso.idOpintojakso = arviointi.idOpintojakso;
++---------+----------+---------------+----------+
+| etunimi | sukunimi | nimi          | arvosana |
++---------+----------+---------------+----------+
+| Aku     | Ankka    | Tietokannat   |        1 |
+| Aku     | Ankka    | Fysiikka 3    |        1 |
+| Aku     | Ankka    | Ruotsin Kieli |        0 |
+| Roope   | Ankka    | Tietokannat   |        4 |
+| Roope   | Ankka    | Fysiikka 3    |        2 |
+| Iines   | Ankka    | Fysiikka 3    |        3 |
+| Mikki   | Hiiri    | Tietokannat   |        5 |
+| Mikki   | Hiiri    | Fysiikka 3    |        4 |
+| Hessu   | Hopo     | Fysiikka 3    |        5 |
+| Hessu   | Hopo     | Tietokannat   |        1 |
++---------+----------+---------------+----------+
+10 rows in set (0.00 sec)
+
+mysql>mysql> CALL PoistaSuoritus('Iines','Ankka','T20041');
++---------------------+
+| Suoritusta ei loydy |
++---------------------+
+| Suoritusta ei loydy |
++---------------------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> CALL PoistaSuoritus('Testi','Ankka','T20041');
++----------------------+
+| Opiskelijaa ei loydy |
++----------------------+
+| Opiskelijaa ei loydy |
++----------------------+
+1 row in set (0.00 sec)
+
+Query OK, 0 rows affected (0.00 sec)
+
+
+
+
+//Virheilmoitus-esimerkki
+
+
