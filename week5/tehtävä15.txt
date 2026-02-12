@@ -1,0 +1,149 @@
+//TEHTÄVÄ 15 A
+
+DELIMITER $$
+/*Käytetään IN-parametria jotta voidaan syöttää merkki*/
+CREATE PROCEDURE muuta_arvosanat_kursori(IN merkki CHAR(1))
+BEGIN
+/*Paikalliset muuttujat*/
+DECLARE arvos INT;
+DECLARE ID INT;
+DECLARE done BOOLEAN DEFAULT FALSE;
+/* Kursori */
+DECLARE arvos_cursor CURSOR FOR
+	SELECT idArviointi, Arvosana FROM arviointi;
+/* NOT FOUND-käsittelijä (kun rivit loppuu) */
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+/*Avataan kursori*/
+OPEN arvos_cursor;
+/*Aloitetaan silmukka*/
+arvos_loop: LOOP
+	/*Sijoitetaan kursorin arvot rivit kerrallaan*/
+    FETCH arvos_cursor INTO ID, arvos;
+    /*Kun kaikki luettu, exit loop*/
+    IF done then
+		CLOSE arvos_cursor;
+        LEAVE arvos_loop;
+	END IF;
+    /*Päivitetään Arvosana-sarakkeen yksi rivi joko + tai - merkin avulla*/
+    IF merkki = '+' THEN
+		UPDATE arviointi SET Arvosana = arvos + 1 WHERE idArviointi = ID AND Arvosana < 5;
+	ELSEIF merkki = '-' THEN
+		UPDATE arviointi SET Arvosana = arvos - 1 WHERE idArviointi = ID AND Arvosana > 0;
+	END IF;
+END LOOP;
+END$$
+
+DELIMITER ;
+
+//Testataan tuloksia konsolilla
+
+mysql> SELECT idArviointi, Arvosana FROM arviointi;
++-------------+----------+
+| idArviointi | Arvosana |
++-------------+----------+
+|           1 |        1 |
+|           2 |        1 |
+|           3 |        0 |
+|           4 |        4 |
+|           5 |        2 |
+|           7 |        3 |
+|           8 |        5 |
+|           9 |        4 |
+|          10 |        5 |
+|          11 |        1 |
++-------------+----------+
+10 rows in set (0.00 sec)
+
+mysql> CALL muuta_arvosanat_kursori('+'); //Lisätään arvosanoja yhdellä
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> SELECT idArviointi, Arvosana FROM arviointi;
++-------------+----------+
+| idArviointi | Arvosana |
++-------------+----------+
+|           1 |        2 |
+|           2 |        2 |
+|           3 |        1 |
+|           4 |        5 |
+|           5 |        3 |
+|           7 |        4 |
+|           8 |        5 |
+|           9 |        5 |
+|          10 |        5 |
+|          11 |        2 |
++-------------+----------+
+10 rows in set (0.00 sec)
+
+mysql> CALL muuta_arvosanat_kursori('-'); //Vähennetään arvosanoja yhdellä (Huom. myös alkuperäiset vitoset laskivat)
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> SELECT idArviointi, Arvosana FROM arviointi;
++-------------+----------+
+| idArviointi | Arvosana |
++-------------+----------+
+|           1 |        1 |
+|           2 |        1 |
+|           3 |        0 |
+|           4 |        4 |
+|           5 |        2 |
+|           7 |        3 |
+|           8 |        4 |
+|           9 |        4 |
+|          10 |        4 |
+|          11 |        1 |
++-------------+----------+
+10 rows in set (0.00 sec)
+
+//TEHTÄVÄ 15 B
+
+DELIMITER $$
+
+CREATE PROCEDURE VaihdaLuokka()
+BEGIN
+
+DECLARE opisID INT;
+DECLARE done BOOLEAN DEFAULT FALSE;
+DECLARE opis_cursor CURSOR FOR
+	SELECT idOpiskelija FROM opiskelija WHERE Luokkatunnus = 'TTE3SNH';
+DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+OPEN opis_cursor;
+opis_loop: LOOP
+	FETCH opis_cursor INTO opisID;
+    IF done THEN
+		CLOSE opis_cursor;
+        LEAVE opis_loop;
+	END IF;
+    UPDATE opiskelija SET Luokkatunnus = 'TVT25SP' WHERE idOpiskelija = opisID;
+END LOOP;
+END $$
+DELIMITER ;
+
+//Testaus
+mysql> SELECT Etunimi, Sukunimi, Luokkatunnus FROM opiskelija;
++---------+----------+--------------+
+| Etunimi | Sukunimi | Luokkatunnus |
++---------+----------+--------------+
+| Aku     | Ankka    | TTE3SNH      |
+| Roope   | Ankka    | TTE3SNH      |
+| Iines   | Ankka    | TTE4SNL      |
+| Mikki   | Hiiri    | TTE2SNO      |
+| Hessu   | Hopo     | TTE2SNO      |
++---------+----------+--------------+
+5 rows in set (0.00 sec)
+
+mysql> CALL VaihdaLuokka();
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> SELECT Etunimi, Sukunimi, Luokkatunnus FROM opiskelija;
++---------+----------+--------------+
+| Etunimi | Sukunimi | Luokkatunnus |
++---------+----------+--------------+
+| Aku     | Ankka    | TVT25SP      |
+| Roope   | Ankka    | TVT25SP      |
+| Iines   | Ankka    | TTE4SNL      |
+| Mikki   | Hiiri    | TTE2SNO      |
+| Hessu   | Hopo     | TTE2SNO      |
++---------+----------+--------------+
+5 rows in set (0.00 sec)
+
+mysql>

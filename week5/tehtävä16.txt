@@ -1,0 +1,164 @@
+//TEHTÄVÄ 16 A
+
+//Taulu ja triggerit / liipaisimet ovat tehty workbenchin kautta
+
+//AFTER INSERT
+
+CREATE DEFINER = CURRENT_USER TRIGGER `arviointi`.`opiskelija_AFTER_INSERT` AFTER INSERT ON `opiskelija` FOR EACH ROW
+BEGIN
+INSERT INTO Muutokset (idMuutokset, pvm, toiminto)
+VALUES (NULL, NOW(), 'add to opiskelija');
+END
+
+//AFTER UPDATE
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `opiskelija_AFTER_UPDATE` AFTER UPDATE ON `opiskelija` FOR EACH ROW BEGIN
+INSERT INTO Muutokset (idMuutokset, pvm, toiminto)
+VALUES (NULL, NOW(), 'update opiskelija'); 
+END
+
+//Testataan INSERT
+
+INSERT INTO opiskelija
+VALUES (NULL, 'Liipaisin','Testi','Osoite 123','TVT25SP'); 
+
+mysql> SELECT * FROM Muutokset;
++-------------+---------------------+-------------------+
+| idMuutokset | pvm                 | toiminto          |
++-------------+---------------------+-------------------+
+|           1 | 2026-02-12 16:45:54 | add to opiskelija |
++-------------+---------------------+-------------------+
+1 row in set (0.00 sec)
+
+
+//Testataan UPDATE
+
+mysql> UPDATE opiskelija SET Osoite = 'Testikatu 321' WHERE Etunimi = 'Liipaisin';
+Query OK, 1 row affected (0.01 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> SELECT * FROM Muutokset;
++-------------+---------------------+-------------------+
+| idMuutokset | pvm                 | toiminto          |
++-------------+---------------------+-------------------+
+|           1 | 2026-02-12 16:45:54 | add to opiskelija |
+|           2 | 2026-02-12 16:48:23 | update opiskelija |
++-------------+---------------------+-------------------+
+2 rows in set (0.00 sec)
+
+mysql>
+
+//TEHTÄVÄ 16B
+//Luodaan liipaisimet
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `opiskelija_BEFORE_DELETE` BEFORE DELETE ON `opiskelija` FOR EACH ROW BEGIN
+DECLARE str VARCHAR(255);
+SET str = CONCAT(
+	'OPISKELIJA ',
+    OLD.idOpiskelija, ' ',
+    OLD.Etunimi, ' ',
+    OLD.Sukunimi, ' ',
+    OLD.Osoite, ' ',
+    OLD.Luokkatunnus
+);
+INSERT INTO Roskakori
+VALUES (Null, NOW(), str);
+END
+
+CREATE DEFINER=`root`@`localhost` TRIGGER `opintojakso_BEFORE_DELETE` BEFORE DELETE ON `opintojakso` FOR EACH ROW BEGIN
+DECLARE str VARCHAR(255);
+SET str = CONCAT(
+	'OPINTOJAKSO ',
+    OLD.idOpintojakso, ' ',
+    OLD.Koodi, ' ',
+    OLD.Laajuus, ' ',
+    OLD.Nimi
+);
+INSERT INTO Roskakori
+VALUES (NULL, NOW(), str);
+END
+
+CREATE DEFINER = CURRENT_USER TRIGGER `arviointi`.`arviointi_BEFORE_DELETE` BEFORE DELETE ON `arviointi` FOR EACH ROW
+BEGIN
+DECLARE str VARCHAR(255);
+SET str = CONCAT(
+	'ARVIOINTI ',
+    OLD.idArviointi, ' ',
+    OLD.Paivamaara, ' ',
+    OLD.Arvosana, ' ',
+    OLD.idOpintojakso, ' ',
+    OLD.idOpiskelija
+);
+INSERT INTO Roskakori
+VALUES (NULL, NOW(), str);
+END
+
+//Testataan aikaisemmin luodulla Liipaisin-opiskelijalla
+
+mysql> DELETE FROM opiskelija WHERE Etunimi = 'Liipaisin';
+Query OK, 1 row affected (0.04 sec)
+
+mysql> SELECT * FROM Roskakori;
++-------------+---------------------+----------------------------------------------------+
+| idRoskakori | pvm                 | tiedot                                             |
++-------------+---------------------+----------------------------------------------------+
+|           1 | 2026-02-12 17:10:25 | OPISKELIJA 6 Liipaisin Testi Testikatu 321 TVT25SP |
++-------------+---------------------+----------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql>
+
+//Testataan arviointi ja opintojakso (luon ensin uutta dataa testiä varten)
+
+mysql> INSERT INTO opintojakso (Koodi, Laajuus, Nimi) VALUES ('TESTI1', 1, 'Roskakori Testi');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT * FROM opintojakso WHERE KOODI = 'TESTI1';
++---------------+--------+---------+-----------------+
+| idOpintojakso | Koodi  | Laajuus | Nimi            |
++---------------+--------+---------+-----------------+
+|             9 | TESTI1 |       1 | Roskakori Testi |
++---------------+--------+---------+-----------------+
+1 row in set (0.00 sec)
+
+mysql> INSERT INTO arviointi VALUES (NULL, CURDATE(), 3, (SELECT idOpintojakso FROM opintojakso WHERE Koodi='TESTI1'), 1);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT * FROM arviointi ORDER BY idArviointi DESC LIMIT 1;
++-------------+------------+----------+---------------+--------------+
+| idArviointi | Paivamaara | Arvosana | idOpintojakso | idOpiskelija |
++-------------+------------+----------+---------------+--------------+
+|          13 | 2026-02-12 |        3 |             9 |            1 |
++-------------+------------+----------+---------------+--------------+
+1 row in set (0.00 sec)
+
+mysql> DELETE FROM arvointi WHERE idArviointi = 13;
+ERROR 1146 (42S02): Table 'arviointi.arvointi' doesn't exist
+mysql> DELETE FROM arvionti WHERE idArviointi = 13;
+ERROR 1146 (42S02): Table 'arviointi.arvionti' doesn't exist
+mysql> DELETE FROM arviointi WHERE idArviointi = 13;
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT * FROM Roskakori;
++-------------+---------------------+----------------------------------------------------+
+| idRoskakori | pvm                 | tiedot                                             |
++-------------+---------------------+----------------------------------------------------+
+|           1 | 2026-02-12 17:10:25 | OPISKELIJA 6 Liipaisin Testi Testikatu 321 TVT25SP |
+|           2 | 2026-02-12 17:19:11 | ARVIOINTI 13 2026-02-12 3 9 1                      |
++-------------+---------------------+----------------------------------------------------+
+2 rows in set (0.00 sec)
+
+mysql> DELETE FROM opintojakso WHERE Koodi = 'TESTI1';
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT * FROM Roskakori;
++-------------+---------------------+----------------------------------------------------+
+| idRoskakori | pvm                 | tiedot                                             |
++-------------+---------------------+----------------------------------------------------+
+|           1 | 2026-02-12 17:10:25 | OPISKELIJA 6 Liipaisin Testi Testikatu 321 TVT25SP |
+|           2 | 2026-02-12 17:19:11 | ARVIOINTI 13 2026-02-12 3 9 1                      |
+|           3 | 2026-02-12 17:19:54 | OPINTOJAKSO 9 TESTI1 1 Roskakori Testi             |
++-------------+---------------------+----------------------------------------------------+
+3 rows in set (0.00 sec)
+
+mysql>
