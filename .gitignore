@@ -4,9 +4,6 @@
 # Allow these
 !.gitignore
 !README.md
-!package.json
-!package-lock.json
-!app.js
 
 #Allow images and docs
 !*.pdf
@@ -15,18 +12,13 @@
 !*.jpeg
 !*.svg
 
-#Allow folders
-!bin/
-!bin/**
-!routes/
-!routes/**
-!public/
-!public/**
-!views/
-!views/**
+#Allow JS Stuff
+!JS/
+!JS/**
 
 #Ignore
-node_modules/
+
+JS/node_modules/
 .env
 *.log
 .vscode/

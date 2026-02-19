@@ -1,0 +1,8 @@
+//Testing POST functionality
+
+POST http://localhost:3000/api/example
+Content-Type: application/json
+
+{
+    "test": "POST testing"
+}
