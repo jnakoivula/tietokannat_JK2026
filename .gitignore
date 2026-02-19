@@ -1,11 +1,31 @@
-# Ignore everything *
-
+# Ignore everything
+*
 
 # Allow these
 !.gitignore
 !README.md
+!package.json
+!package-lock.json
+
+#Allow images and docs
 !*.pdf
 !*.png
 !*.jpg
 !*.jpeg
 !*.svg
+
+#Allow folders
+!app.js
+!bin/
+!routes/
+!public/
+!views/
+
+#Inside folders
+!*.js
+
+#Ignore
+node_modules/
+.env
+*.log
+.vscode/
