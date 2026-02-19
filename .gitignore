@@ -6,6 +6,7 @@
 !README.md
 !package.json
 !package-lock.json
+!app.js
 
 #Allow images and docs
 !*.pdf
@@ -15,14 +16,14 @@
 !*.svg
 
 #Allow folders
-!app.js
 !bin/
+!bin/**
 !routes/
+!routes/**
 !public/
+!public/**
 !views/
-
-#Inside folders
-!*.js
+!views/**
 
 #Ignore
 node_modules/
