@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var bcrypt = require('bcryptjs');
 
 var db = require('../config/database');
 
@@ -363,5 +364,35 @@ router.delete('/arvioinnit/:id', function(req, res){
         }
     );
 });
+
+//POST User with encrypted pw
+router.post('/users', function(req, res){
+    const { username, password } = req.body;
+    const hashedPassword = bcrypt.hashSync(password, 10);
+
+    db.query("INSERT INTO user (username, password) VALUES (?, ?)", [username, hashedPassword],
+        function(err, result){
+            if(err){
+                res.send(err);
+            } else {
+                res.json({
+                    message: "User created successfully"
+                });
+            }
+        }
+    );
+});
+
+//GET
+router.get('/users', function(req, res){
+    db.query("SELECT * FROM user", function(err, result){
+        if(err){
+            res.send(err);
+        } else {
+            res.json(result);
+        }
+    });
+});
+
 
 module.exports = router;
