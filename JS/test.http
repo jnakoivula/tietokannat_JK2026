@@ -1,8 +1,51 @@
-//Testing POST functionality
-
-POST http://localhost:3000/api/example
+###Testing POST functionality
+POST http://localhost:3000/api/books
 Content-Type: application/json
 
 {
-    "test": "POST testing"
+    "name": "Dune",
+    "author": "Frank Herbert",
+    "isbn": "9780441013593"
 }
+
+###GET Books
+GET Http://localhost:3000/api/books
+
+###Update book with PUT
+PUT http://localhost:3000/api/books/1
+Content-Type: application/json
+
+{
+    "name": "Dune Messiah",
+    "author": "Frant Herbert",
+    "isbn": "9780441172696"
+}
+
+###Delete book
+DELETE http://localhost:3000/api/books/1
+
+###POST Borrower
+POST http://localhost:3000/api/borrowers
+Content-Type: application/json
+
+{
+    "fname": "Joonas",
+    "lname": "Testi",
+    "streetAddress": "Katu123"
+}
+
+###GET Borrowers
+GET Http://localhost:3000/api/borrowers
+
+###Update borrowers with PUT
+PUT http://localhost:3000/api/borrowers/1
+Content-Type: application/json
+
+{
+    "fname": "Nimi",
+    "lname": "Testaus",
+    "streetAddress": "Katu312"
+}
+
+###Delete borrower
+DELETE http://localhost:3000/api/borrowers/1
