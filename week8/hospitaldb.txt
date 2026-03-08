@@ -1,0 +1,299 @@
+
+//HOSPITAL Tietokanta ja siitä löytyvät taulut sekä data.
+
+mysql> Show databases;
++--------------------+
+| Database           |
++--------------------+
+| arviointi          |
+| employees          |
+| hospital           |
+| information_schema |
+| kirjasto           |
+| library            |
+| mysql              |
+| opintorekisteri    |
+| performance_schema |
+| phpmyadmin         |
+| sakila             |
+| sys                |
+| tietokannat        |
++--------------------+
+13 rows in set (0.00 sec)
+
+mysql> use hospital;
+Database changed
+mysql> show tables;
++--------------------+
+| Tables_in_hospital |
++--------------------+
+| appointments       |
+| departments        |
+| medications        |
+| patients           |
+| patientstays       |
+| staff              |
+| treatments         |
++--------------------+
+7 rows in set (0.00 sec)
+
+mysql> desc appointments;
++----------------------+----------+------+-----+---------+----------------+
+| Field                | Type     | Null | Key | Default | Extra          |
++----------------------+----------+------+-----+---------+----------------+
+| appointment_id       | int      | NO   | PRI | NULL    | auto_increment |
+| patient_id           | int      | YES  | MUL | NULL    |                |
+| doctor_id            | int      | YES  | MUL | NULL    |                |
+| appointment_datetime | datetime | NO   |     | NULL    |                |
++----------------------+----------+------+-----+---------+----------------+
+4 rows in set (0.00 sec)
+
+mysql> desc departments;
++--------------------+--------------+------+-----+---------+----------------+
+| Field              | Type         | Null | Key | Default | Extra          |
++--------------------+--------------+------+-----+---------+----------------+
+| department_id      | int          | NO   | PRI | NULL    | auto_increment |
+| name               | varchar(100) | NO   |     | NULL    |                |
+| location           | varchar(100) | YES  |     | NULL    |                |
+| responsible_doctor | int          | YES  | MUL | NULL    |                |
++--------------------+--------------+------+-----+---------+----------------+
+4 rows in set (0.00 sec)
+
+mysql> desc medications;
++---------------+--------------+------+-----+---------+----------------+
+| Field         | Type         | Null | Key | Default | Extra          |
++---------------+--------------+------+-----+---------+----------------+
+| medication_id | int          | NO   | PRI | NULL    | auto_increment |
+| patient_id    | int          | YES  | MUL | NULL    |                |
+| name          | varchar(100) | NO   |     | NULL    |                |
+| dosage        | varchar(50)  | YES  |     | NULL    |                |
+| instructions  | varchar(200) | YES  |     | NULL    |                |
+| start_date    | date         | YES  |     | NULL    |                |
+| end_date      | date         | YES  |     | NULL    |                |
++---------------+--------------+------+-----+---------+----------------+
+7 rows in set (0.00 sec)
+
+mysql> desc patients;
++---------------+--------------+------+-----+---------+----------------+
+| Field         | Type         | Null | Key | Default | Extra          |
++---------------+--------------+------+-----+---------+----------------+
+| patient_id    | int          | NO   | PRI | NULL    | auto_increment |
+| name          | varchar(100) | NO   |     | NULL    |                |
+| date_of_birth | date         | NO   |     | NULL    |                |
+| gender        | varchar(10)  | YES  |     | NULL    |                |
+| address       | varchar(200) | YES  |     | NULL    |                |
+| phone         | varchar(20)  | YES  |     | NULL    |                |
++---------------+--------------+------+-----+---------+----------------+
+6 rows in set (0.00 sec)
+
+mysql> desc patientstays;
++----------------+------+------+-----+---------+----------------+
+| Field          | Type | Null | Key | Default | Extra          |
++----------------+------+------+-----+---------+----------------+
+| stay_id        | int  | NO   | PRI | NULL    | auto_increment |
+| patient_id     | int  | YES  | MUL | NULL    |                |
+| department_id  | int  | YES  | MUL | NULL    |                |
+| doctor_id      | int  | YES  | MUL | NULL    |                |
+| admission_date | date | NO   |     | NULL    |                |
+| discharge_date | date | YES  |     | NULL    |                |
++----------------+------+------+-----+---------+----------------+
+6 rows in set (0.00 sec)
+
+mysql> desc staff;
++-----------+--------------+------+-----+---------+----------------+
+| Field     | Type         | Null | Key | Default | Extra          |
++-----------+--------------+------+-----+---------+----------------+
+| staff_id  | int          | NO   | PRI | NULL    | auto_increment |
+| name      | varchar(100) | NO   |     | NULL    |                |
+| role      | varchar(50)  | NO   |     | NULL    |                |
+| specialty | varchar(100) | YES  |     | NULL    |                |
+| phone     | varchar(20)  | YES  |     | NULL    |                |
++-----------+--------------+------+-----+---------+----------------+
+5 rows in set (0.00 sec)
+
+mysql>
+mysql> desc treatments;
++----------------+--------------+------+-----+---------+----------------+
+| Field          | Type         | Null | Key | Default | Extra          |
++----------------+--------------+------+-----+---------+----------------+
+| treatment_id   | int          | NO   | PRI | NULL    | auto_increment |
+| stay_id        | int          | YES  | MUL | NULL    |                |
+| staff_id       | int          | YES  | MUL | NULL    |                |
+| description    | varchar(200) | YES  |     | NULL    |                |
+| treatment_date | date         | YES  |     | NULL    |                |
++----------------+--------------+------+-----+---------+----------------+
+5 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Patients;
++------------+-------------------+---------------+--------+-----------------+------------+
+| patient_id | name              | date_of_birth | gender | address         | phone      |
++------------+-------------------+---------------+--------+-----------------+------------+
+|          1 | Testi Testaaja    | 1988-04-12    | Male   | Testikatu 5     | 0401234567 |
+|          2 | Maija Meikalainen | 1995-07-21    | Female | Kokeilutie 12   | 0509876543 |
+|          3 | Matti Mallikas    | 1979-11-03    | Male   | Esimerkkikatu 8 | 0451122334 |
++------------+-------------------+---------------+--------+-----------------+------------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Staff;
++----------+----------------------+--------+------------+------------+
+| staff_id | name                 | role   | specialty  | phone      |
++----------+----------------------+--------+------------+------------+
+|        1 | Lääkäri Laaksonen    | Doctor | Cardiology | 0401111111 |
+|        2 | Lääkäri Virtanen     | Doctor | Neurology  | 0402222222 |
+|        3 | Hoitaja Korhonen     | Nurse  | ICU        | 0403333333 |
+|        4 | Hoitaja Nieminen     | Nurse  | Surgery    | 0404444444 |
++----------+----------------------+--------+------------+------------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Departments;
++---------------+------------+------------+--------------------+
+| department_id | name       | location   | responsible_doctor |
++---------------+------------+------------+--------------------+
+|             1 | Cardiology | Building A |                  1 |
+|             2 | Neurology  | Building B |                  2 |
++---------------+------------+------------+--------------------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT * FROM PatientStays;
++---------+------------+---------------+-----------+----------------+----------------+
+| stay_id | patient_id | department_id | doctor_id | admission_date | discharge_date |
++---------+------------+---------------+-----------+----------------+----------------+
+|       1 |          1 |             1 |         1 | 2026-03-01     | 2026-03-05     |
+|       2 |          2 |             2 |         2 | 2026-03-03     | 2026-03-10     |
+|       3 |          3 |             1 |         1 | 2026-03-04     | 2026-03-08     |
++---------+------------+---------------+-----------+----------------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Treatments;
++--------------+---------+----------+------------------+----------------+
+| treatment_id | stay_id | staff_id | description      | treatment_date |
++--------------+---------+----------+------------------+----------------+
+|            1 |       1 |        3 | Blood test       | 2026-03-02     |
+|            2 |       2 |        4 | MRI scan         | 2026-03-04     |
+|            3 |       3 |        3 | Heart monitoring | 2026-03-05     |
++--------------+---------+----------+------------------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Medications;
++---------------+------------+-------------+--------+------------------+------------+------------+
+| medication_id | patient_id | name        | dosage | instructions     | start_date | end_date   |
++---------------+------------+-------------+--------+------------------+------------+------------+
+|             1 |          1 | Ibuprofen   | 200mg  | Take after meals | 2026-03-01 | 2026-03-05 |
+|             2 |          2 | Amoxicillin | 500mg  | Twice per day    | 2026-03-03 | 2026-03-10 |
+|             3 |          3 | Paracetamol | 500mg  | If pain occurs   | 2026-03-04 | 2026-03-08 |
++---------------+------------+-------------+--------+------------------+------------+------------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT * FROM Appointments;
++----------------+------------+-----------+----------------------+
+| appointment_id | patient_id | doctor_id | appointment_datetime |
++----------------+------------+-----------+----------------------+
+|              1 |          1 |         1 | 2026-04-01 10:30:00  |
+|              2 |          2 |         2 | 2026-04-02 11:00:00  |
+|              3 |          3 |         1 | 2026-04-03 09:15:00  |
++----------------+------------+-----------+----------------------+
+3 rows in set (0.00 sec)
+
+
+//Kaikki CHECK CONSTRAINT Vaatimukset:
+
+mysql> SHOW CREATE TABLE patients;
++----------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Table    | Create Table                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
++----------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| patients | CREATE TABLE `patients` (
+  `patient_id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `date_of_birth` date NOT NULL,
+  `gender` varchar(10) DEFAULT NULL,
+  `address` varchar(200) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`patient_id`),
+  CONSTRAINT `patients_chk_1` CHECK ((`gender` in (_utf8mb4'Male',_utf8mb4'Female',_utf8mb4'Other')))
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci |
++----------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> SHOW CREATE Table staff;
++-------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Table | Create Table                                                                                                                                                                                                                                                                                                                                                                                                                        |
++-------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| staff | CREATE TABLE `staff` (
+  `staff_id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `role` varchar(50) NOT NULL,
+  `specialty` varchar(100) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`staff_id`),
+  CONSTRAINT `staff_chk_1` CHECK ((`role` in (_utf8mb4'Doctor',_utf8mb4'Nurse',_utf8mb4'Technician')))
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci |
++-------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> SHOW CREATE TABLE PatientStays;
++--------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Table        | Create Table                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
++--------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| PatientStays | CREATE TABLE `patientstays` (
+  `stay_id` int NOT NULL AUTO_INCREMENT,
+  `patient_id` int DEFAULT NULL,
+  `department_id` int DEFAULT NULL,
+  `doctor_id` int DEFAULT NULL,
+  `admission_date` date NOT NULL,
+  `discharge_date` date DEFAULT NULL,
+  PRIMARY KEY (`stay_id`),
+  KEY `patient_id` (`patient_id`),
+  KEY `department_id` (`department_id`),
+  KEY `doctor_id` (`doctor_id`),
+  CONSTRAINT `patientstays_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`),
+  CONSTRAINT `patientstays_ibfk_2` FOREIGN KEY (`department_id`) REFERENCES `departments` (`department_id`),
+  CONSTRAINT `patientstays_ibfk_3` FOREIGN KEY (`doctor_id`) REFERENCES `staff` (`staff_id`),
+  CONSTRAINT `patientstays_chk_1` CHECK ((`discharge_date` >= `admission_date`))
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci |
++--------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> SHOW CREATE TABLE Medications;
++-------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Table       | Create Table                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
++-------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+| Medications | CREATE TABLE `medications` (
+  `medication_id` int NOT NULL AUTO_INCREMENT,
+  `patient_id` int DEFAULT NULL,
+  `name` varchar(100) NOT NULL,
+  `dosage` varchar(50) DEFAULT NULL,
+  `instructions` varchar(200) DEFAULT NULL,
+  `start_date` date DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
+  PRIMARY KEY (`medication_id`),
+  KEY `patient_id` (`patient_id`),
+  CONSTRAINT `medications_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`),
+  CONSTRAINT `medications_chk_1` CHECK ((`end_date` >= `start_date`))
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci |
++-------------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+//CHECK Constraint TESTAUS
+
+mysql> INSERT INTO Patients (name,date_of_birth,gender,address,phone) VALUES ('Virheellinen Potilas','2000-01-01','Testi','Testikatu 1','0400000000');
+ERROR 3819 (HY000): Check constraint 'patients_chk_1' is violated.
+
+mysql> INSERT INTO Staff (name,role,specialty,phone) VALUES ('Testi Henkilo','Janitor','Cleaning','0409999999');
+ERROR 3819 (HY000): Check constraint 'staff_chk_1' is violated.
+
+mysql> INSERT INTO PatientStays (patient_id,department_id,doctor_id,admission_date,discharge_date) VALUES (1,1,1,'2026-05-10','2026-05-01');
+ERROR 3819 (HY000): Check constraint 'patientstays_chk_1' is violated.
+
+mysql> INSERT INTO Medications (patient_id,name,dosage,instructions,start_date,end_date) VALUES (1,'TestLaake','100mg','Test','2026-05-10','2026-05-01');
+ERROR 3819 (HY000): Check constraint 'medications_chk_1' is violated.
+mysql>
+mysql> INSERT INTO PatientStays (patient_id,department_id,doctor_id,admission_date,discharge_date) VALUES (999,1,1,'2026-06-01','2026-06-05');
+ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`hospital`.`patientstays`, CONSTRAINT `patientstays_ibfk_1` FOREIGN KEY (`patient_id`) REFERENCES `patients` (`patient_id`))
+
+////
+Patients kohdalla sukupuolen on oltava oikeanlainen
+Staff kohdalla on pakko olla jokin määritellyistä rooleista
+PatientStays taulussa discharge date täytyy olla myöhemmin tai sama kuin admission date
+Medications sama homma kuin PatientStays.
+Foreign Key constraint estää lisäyksen olemattomaan potilaaseen, lääkäriin tai osastoon.
+////

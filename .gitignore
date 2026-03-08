@@ -25,3 +25,4 @@ JS/node_modules/
 
 #Allow Week8
 !week8/
+!week8/**
