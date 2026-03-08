@@ -22,3 +22,6 @@ JS/node_modules/
 .env
 *.log
 .vscode/
+
+#Allow Week8
+!week8/
