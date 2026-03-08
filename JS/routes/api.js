@@ -162,4 +162,206 @@ router.delete('/borrowers/:id', function(req, res){
     );
 });
 
+//GET all opiskelijat
+router.get('/opiskelijat', function(req, res){
+    db.query("SELECT * FROM opiskelija", function(err, result){
+        if(err){
+            res.send(err);
+        } else {
+            res.json(result);
+        }
+    });
+});
+
+//POST, add new opiskelija
+router.post('/opiskelijat', function(req, res){
+    const { Etunimi, Sukunimi, Osoite, Luokkatunnus } = req.body;
+    db.query(
+        "INSERT INTO opiskelija (Etunimi, Sukunimi, Osoite, Luokkatunnus) VALUES (?, ?, ?, ?)", [Etunimi, Sukunimi, Osoite, Luokkatunnus],
+        function(err, result){
+            if(err){
+                res.send(err);
+            } else {
+                res.json({
+                    message: "Opiskelija added successfully", id: result.insertId
+                });
+            }
+        }
+    );
+});
+
+//UPDATE an opiskelija
+router.put('/opiskelijat/:id', function(req, res){
+    const id = req.params.id;
+    const { Etunimi, Sukunimi, Osoite, Luokkatunnus } = req.body;
+    db.query("UPDATE opiskelija SET Etunimi=?, Sukunimi=?, Osoite=?, Luokkatunnus=? WHERE idOpiskelija=?", [Etunimi, Sukunimi, Osoite, Luokkatunnus, id],
+        function(err,result) {
+            if(err){
+                res.send(err);
+            } else {
+                res.json({
+                    message: "Opiskelija updated successfully"
+                });
+            }
+        }
+    );
+});
+
+//DELETE an opiskelija
+router.delete('/opiskelijat/:id', function(req, res){
+    const id = req.params.id;
+
+    db.query("DELETE FROM arviointi WHERE idOpiskelija=?", [id], function(err){
+        if(err){
+            res.send(err);
+        } else {
+
+            db.query("DELETE FROM opiskelija WHERE idOpiskelija=?", [id], function(err,result){
+                if(err){
+                    res.send(err);
+                } else {
+                    res.json({
+                        message: "Opiskelija and related grades deleted successfully"
+                    });
+                }
+            });
+
+        }
+    });
+});
+
+//GET all opintojaksot
+router.get('/opintojaksot', function(req, res){
+    db.query("SELECT * FROM opintojakso", function(err, result){
+        if(err){
+            res.send(err);
+        } else {
+            res.json(result);
+        }
+    });
+});
+
+//POST, add new opintojakso
+router.post('/opintojaksot', function(req, res){
+    const { Koodi, Laajuus, Nimi } = req.body;
+    db.query(
+        "INSERT INTO opintojakso (Koodi, Laajuus, Nimi) VALUES (?, ?, ?)", [Koodi, Laajuus, Nimi],
+        function(err, result){
+            if(err){
+                res.send(err);
+            } else {
+                res.json({
+                    message: "Opintojakso added successfully", id: result.insertId
+                });
+            }
+        }
+    );
+});
+
+//UPDATE an opintojakso
+router.put('/opintojaksot/:id', function(req, res){
+    const id = req.params.id;
+    const { Koodi, Laajuus, Nimi } = req.body;
+    db.query("UPDATE opintojakso SET Koodi=?, Laajuus=?, Nimi=? WHERE idOpintojakso=?", [Koodi, Laajuus, Nimi, id],
+        function(err,result) {
+            if(err){
+                res.send(err);
+            } else {
+                res.json({
+                    message: "Opintojakso updated successfully"
+                });
+            }
+        }
+    );
+});
+
+//DELETE an opintojakso
+router.delete('/opintojaksot/:id', function(req, res){
+    const id = req.params.id;
+
+    db.query("DELETE FROM opintojakso WHERE idOpintojakso=?",[id],
+        function(err, result){
+            if(err){
+                res.send(err);
+            } else {
+                res.json({
+                    message: "Opintojakso deleted successfully"
+                });
+            }
+        }
+    );
+});
+
+//GET arviointi
+router.get('/arvioinnit', function(req, res){
+    db.query(
+        "SELECT opiskelija.Etunimi, opiskelija.Sukunimi, opintojakso.Nimi AS Opintojakso, arviointi.Arvosana, arviointi.Paivamaara \
+        FROM arviointi \
+        JOIN opiskelija ON opiskelija.idOpiskelija = arviointi.idOpiskelija \
+        JOIN opintojakso ON opintojakso.idOpintojakso = arviointi.idOpintojakso",
+        function(err, result){
+            if(err){
+                res.send(err);
+            } else {
+                res.json(result);
+            }
+        }
+    );
+});
+
+//POST arviointi
+router.post('/arvioinnit', function(req, res){
+    const { Paivamaara, Arvosana, idOpintojakso, idOpiskelija } = req.body;
+    db.query(
+        "INSERT INTO arviointi (Paivamaara, Arvosana, idOpintojakso, idOpiskelija) VALUES (?, ?, ?, ?)",
+        [Paivamaara, Arvosana, idOpintojakso, idOpiskelija],
+        function(err, result){
+            if(err){
+                res.send(err);
+            } else {
+                res.json({
+                    message: "Arviointi added successfully", id: result.insertId
+                });
+            }
+        }
+    );
+});
+
+//UPDATE an arviointi
+router.put('/arvioinnit/:id', function(req, res){
+    const id = req.params.id;
+    const { Paivamaara, Arvosana, idOpintojakso, idOpiskelija } = req.body;
+
+    db.query(
+        "UPDATE arviointi SET Paivamaara=?, Arvosana=?, idOpintojakso=?, idOpiskelija=? WHERE idArviointi=?",
+        [Paivamaara, Arvosana, idOpintojakso, idOpiskelija, id],
+        function(err,result){
+            if(err){
+                res.send(err);
+            } else {
+                res.json({
+                    message: "Arviointi updated successfully"
+                });
+            }
+        }
+    );
+});
+
+//DELETE an arviointi
+router.delete('/arvioinnit/:id', function(req, res){
+    const id = req.params.id;
+
+    db.query("DELETE FROM arviointi WHERE idArviointi=?",[id],
+        function(err, result){
+            if(err){
+                res.send(err);
+            } else {
+                res.json({
+                    message: "Arviointi deleted successfully"
+                });
+            }
+        }
+    );
+});
+
 module.exports = router;

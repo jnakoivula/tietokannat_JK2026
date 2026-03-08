@@ -49,3 +49,86 @@ Content-Type: application/json
 
 ###Delete borrower
 DELETE http://localhost:3000/api/borrowers/1
+
+###Opiskelijat POST
+POST http://localhost:3000/api/opiskelijat
+Content-Type: application/json
+
+{
+  "Etunimi": "Testi",
+  "Sukunimi": "Opiskelija",
+  "Osoite": "Testikatu 1",
+  "Luokkatunnus": "TVT25SP"
+}
+###GET
+GET http://localhost:3000/api/opiskelijat
+
+###PUT
+PUT http://localhost:3000/api/opiskelijat/1
+Content-Type: application/json
+
+{
+  "Etunimi": "Hannu",
+  "Sukunimi": "Ankka",
+  "Osoite": "Ankkalinna 999",
+  "Luokkatunnus": "TVT25SP"
+}
+
+###DELETE
+DELETE http://localhost:3000/api/opiskelijat/1
+
+###Same thing for Opintojakso
+###POST
+POST http://localhost:3000/api/opintojaksot
+Content-Type: application/json
+
+{
+  "Koodi": "T12321",
+  "Laajuus": 3,
+  "Nimi": "Testikurssi"
+}
+
+###GET
+GET http://localhost:3000/api/opintojaksot
+
+###PUT
+PUT http://localhost:3000/api/opintojaksot/1
+Content-Type: application/json
+
+{
+  "Koodi": "T20041",
+  "Laajuus": 5,
+  "Nimi": "Tietokannat Testi"
+}
+
+###DELETE
+DELETE http://localhost:3000/api/opintojaksot/9
+
+###Same for arviointi
+###POST
+POST http://localhost:3000/api/arvioinnit
+Content-Type: application/json
+
+{
+  "Paivamaara": "2026-03-08",
+  "Arvosana": 4,
+  "idOpintojakso": 1,
+  "idOpiskelija": 7
+}
+
+###GET
+GET http://localhost:3000/api/arvioinnit
+
+###PUT
+PUT http://localhost:3000/api/arvioinnit/15
+Content-Type: application/json
+
+{
+  "Paivamaara": "2026-03-08",
+  "Arvosana": 5,
+  "idOpintojakso": 1,
+  "idOpiskelija": 7
+}
+
+###DELETE
+DELETE http://localhost:3000/api/arvioinnit/15
